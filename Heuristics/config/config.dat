@@ -1,8 +1,8 @@
 # --- Common specific parameters ------------------------------------------------------------------------------
-inputDataFile        = C:\Users\jjoul\Documents\UPC\AMMM\PythonCode-20250422T083021Z-001\PythonCode\Heuristics\data\big_1.dat;
+inputDataFile        = C:\Users\jjoul\Documents\UPC\AMMM\PythonCode-20250422T083021Z-001\PythonCode\Heuristics\..\InstanceGeneratorP2\output\small_0.dat;
 solutionFile         = C:\Users\jjoul\Documents\UPC\AMMM\PythonCode-20250422T083021Z-001\PythonCode\Heuristics\solutions\example.sol;   # Output DAT file (solution)
 # Supported values: Greedy / Random / GRASP / BRKGA
-solver               = Random;
+solver               = GRASP;
 maxExecTime          = 60;                      # Maximum execution time in seconds
 verbose              = True;                    # Verbose mode?
 
@@ -11,7 +11,7 @@ verbose              = True;                    # Verbose mode?
 
 # --- GRASP constructive specific parameters ------------------------------------------------------------------
 # Ignored if solver is not GRASP.
-alpha                = 0.5;                 # Alpha parameter for the GRASP solver.
+alpha                = 0.7;                 # Alpha parameter for the GRASP solver.
 
 # --- Local Search specific parameters ------------------------------------------------------------------------
 localSearch          = False;                # Enable local search?
