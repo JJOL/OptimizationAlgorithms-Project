@@ -1,0 +1,13 @@
+# file name: ../AMMMLabHeuristics/data/instance_XX.dat
+instancesDirectory = output;
+fileNamePrefix = small;
+fileNameExtension = dat;
+numInstances = 3;
+
+numCPUs = 6;
+minCapacityPerCPU = 4000;
+maxCapacityPerCPU = 5000;
+
+numTasks = 20;
+minResourcesPerTask = 1000;
+maxResourcesPerTask = 1500;

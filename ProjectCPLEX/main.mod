@@ -1,6 +1,6 @@
 /*********************************************
  * OPL 22.1.2.0 Model
- * Author: jjoul
+ * Author: Juan Jose Olivera & Pol Verdura
  * Creation Date: Mar 9, 2025 at 10:34:26 AM
  *********************************************/
 

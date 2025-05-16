@@ -1,0 +1,4 @@
+modelFile = "..\\CPLEX\\Project.mod";
+dataFile = "..\\ProjectInstanceGenerator\\output\\big_1.dat";
+outputFile= "solution.dat";
+epgap = 0.01;

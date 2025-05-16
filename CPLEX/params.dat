@@ -1,4 +1,4 @@
 modelFile = "..\\CPLEX\\P2a.mod";
-dataFile = "..\\InstanceGeneratorP2\\output\\small_0.dat";
+dataFile = "..\\InstanceGeneratorP2\\output\\big_1.dat";
 outputFile= "solution.dat";
 epgap = 0.01;

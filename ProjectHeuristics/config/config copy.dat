@@ -1,10 +1,10 @@
 # --- Common specific parameters ------------------------------------------------------------------------------
-inputDataFile        = C:\Users\jjoul\Documents\UPC\AMMM\PythonCode\PythonCode\Heuristics\..\InstanceGeneratorP2\output\big_1.dat;
-solutionFile         = C:\Users\jjoul\Documents\UPC\AMMM\PythonCode\PythonCode\Heuristics\solutions\example.sol;   # Output DAT file (solution)
+inputDataFile        = data/big_1.dat;        # Input DAT file
+solutionFile         = solutions/example.sol;   # Output DAT file (solution)
 # Supported values: Greedy / Random / GRASP / BRKGA
-solver               = BRKGA;
-maxExecTime          = 10;                      # Maximum execution time in seconds
-verbose              = False;                    # Verbose mode?
+solver               = Greedy;
+maxExecTime          = 60;                      # Maximum execution time in seconds
+verbose              = True;                    # Verbose mode?
 
 # --- Greedy / Random specific parameters ---------------------------------------------------------------------
 # No specific parameters
