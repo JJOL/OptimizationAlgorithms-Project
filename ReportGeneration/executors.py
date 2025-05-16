@@ -29,13 +29,13 @@ def dat_file_assign(file_path: str, variable:str , value: str):
     with open(file_path, 'w') as file:
         file.writelines(file_lines)
 
-HEURISTICS_BASE = r'C:\Users\jjoul\Documents\UPC\AMMM\PythonCode\PythonCode\ProjectHeuristics'
+HEURISTICS_BASE = r'C:\Users\jjoul\Documents\UPC\AMMM\PythonCode\PythonCode\Heuristics'
 def execute_python_solver(solver: str, instance_size: str) -> tuple[ExecResults, ExecTimes]:
     # Assign Input File and Solver
     config_file_path = os.path.join(HEURISTICS_BASE, r'config\config.dat')
     dat_file_assign(config_file_path, 'solver', solver)
     data_file = instance_size
-    dat_file_assign(config_file_path, 'inputDataFile', os.path.join(HEURISTICS_BASE, '..', 'ProjectInstanceGenerator', 'output', data_file))
+    dat_file_assign(config_file_path, 'inputDataFile', os.path.join(HEURISTICS_BASE, '..', 'InstanceGeneratorP2', 'output', data_file))
 
     # Execute
     sys.path.append(HEURISTICS_BASE)
@@ -67,11 +67,11 @@ def execute_cplex_solver(instance_size: str) -> tuple[ExecResults, ExecTimes]:
     # Assign instance data file
     CPLEX_BASE = '..\\CPLEX'
     params_file_path = os.path.join(CPLEX_BASE, 'params.dat')
-    dat_file_assign(params_file_path, 'dataFile', f"\"..\\\\ProjectInstanceGenerator\\\\output\\\\{instance_size}\"")
+    dat_file_assign(params_file_path, 'dataFile', f"\"..\\\\InstanceGeneratorP2\\\\output\\\\{instance_size}\"")
 
 
     start = timer()
-    res = subprocess.run(['oplrun.exe', '..\\ProjectCPLEX\\main.mod', '..\\ProjectCPLEX\\params.dat'], timeout=60)
+    res = subprocess.run(['oplrun.exe', '..\\CPLEX\\main.mod', '..\\CPLEX\\params.dat'], timeout=60)
     end = timer()
 
     val = 0
@@ -79,7 +79,7 @@ def execute_cplex_solver(instance_size: str) -> tuple[ExecResults, ExecTimes]:
         print('GOOD exeuction!')
         sys.path.append(HEURISTICS_BASE)
         from datParser import DATParser
-        sol = DATParser.parse('..\\ProjectCPLEX\\solution.dat')
+        sol = DATParser.parse('..\\CPLEX\\solution.dat')
         val = sol.z
 
     return (ExecResults(val), ExecTimes(end - start))
