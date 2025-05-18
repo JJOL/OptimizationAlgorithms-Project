@@ -28,7 +28,7 @@ class Solver_Greedy(_Solver):
     def _selectCandidate(self, candidateList):
         if self.config.solver == 'Greedy':
             # sort candidate assignments by highestLoad in ascending order
-            sortedCandidateList = sorted(candidateList, key=lambda x: x.highestLoad)
+            sortedCandidateList = sorted(candidateList, key=lambda x: x[2], reverse=True)
             # choose assignment with minimum highest load
             return sortedCandidateList[0]
         return random.choice(candidateList)
@@ -36,32 +36,16 @@ class Solver_Greedy(_Solver):
     def construction(self):
         # get an empty solution for the problem
         solution = self.instance.createSolution()
-
-        # get tasks and sort them by their total required resources in descending order
-        tasks = self.instance.getTasks()
-        sortedTasks = sorted(tasks, key=lambda t: t.getTotalResources(), reverse=True)
-
-
-        # for each task taken in sorted order
-        for task in sortedTasks:
-            taskId = task.getId()
-
-            # compute feasible assignments
-            candidateList = solution.findFeasibleAssignments(taskId)
-
-            # no candidate assignments => no feasible assignment found
-            if not candidateList:
-                solution.makeInfeasible()
-                break
-
-            # select assignment
+        candidateList = solution.findFeasibleBidWins()
+        while len(candidateList) > 0:
             candidate = self._selectCandidate(candidateList)
+            solution.assign(candidate)
+            candidateList = solution.findFeasibleBidWins()
 
-            # assign the current task to the CPU that resulted in a minimum highest load
-            solution.assign(taskId, candidate.cpuId)
-
+        if not solution.isComplete():
+            solution.makeInfeasible()
         return solution
-
+        
     def solve(self, **kwargs):
         self.startTimeMeasure()
 

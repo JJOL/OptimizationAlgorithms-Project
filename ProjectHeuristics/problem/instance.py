@@ -26,48 +26,29 @@ class Instance(object):
     def __init__(self, config, inputData):
         self.config = config
         self.inputData = inputData
-        nTasks = inputData.nTasks
-        nCPUs = inputData.nCPUs
-        rt = inputData.rt
-        self.rc = inputData.rc
 
-        self.tasks = [None] * nTasks  # vector with tasks
-        for tId in range(0, nTasks):  # tId = 0..(nTasks-1)
-            self.tasks[tId] = Task(tId, rt[tId])
+        self.nUsers = inputData.N
+        self._bidMatrix = inputData.m
 
-        self.cpus = [None] * nCPUs  # vector with cpus
-        for cId in range(0, nCPUs):  # cId = 0..(nCPUs-1)
-            self.cpus[cId] = CPU(cId, self.rc[cId])
+    # def getNumTasks(self):
+    #     return len(self.tasks)
 
-    def getNumTasks(self):
-        return len(self.tasks)
+    # def getNumCPUs(self):
+    #     return len(self.cpus)
 
-    def getNumCPUs(self):
-        return len(self.cpus)
+    # def getTasks(self):
+    #     return self.tasks
 
-    def getTasks(self):
-        return self.tasks
-
-    def getCPUs(self):
-        return self.cpus
+    # def getCPUs(self):
+    #     return self.cpus
 
     def createSolution(self):
-        solution = Solution(self.tasks, self.cpus, self.rc)
+        solution = Solution(self.nUsers, self._bidMatrix)
         solution.setVerbose(self.config.verbose)
         return solution
 
     def checkInstance(self):
-        totalCapacityCPUs = 0.0
-        maxCPUCapacity = 0.0
-        for cpu in self.cpus:
-            capacity = cpu.getTotalCapacity()
-            totalCapacityCPUs += capacity
-            maxCPUCapacity = max(maxCPUCapacity, capacity)
-
-        totalResourcesTasks = 0.0
-        for task in self.tasks:
-            resources = task.getTotalResources()
-            totalResourcesTasks += resources
-            if resources > maxCPUCapacity: return False
-
-        return totalCapacityCPUs >= totalResourcesTasks
+        for i in range(self.nUsers):
+            if self._bidMatrix[i][i] > 0:
+                return False
+        return True
