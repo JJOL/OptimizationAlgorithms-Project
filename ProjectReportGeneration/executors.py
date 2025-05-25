@@ -57,7 +57,7 @@ def execute_python_solver(solver: str, instance_size: str) -> tuple[ExecResults,
     solver.run(inputData)
 
     end = timer()
-    print('Done.')
+    # print('Done.')
 
     solution_file_path = os.path.join(HEURISTICS_BASE, 'solutions', 'example.sol')
     sol = DATParser.parse(solution_file_path)
@@ -89,10 +89,10 @@ def execute_search(solver: str, instance_size: str) -> tuple[ExecResults, ExecTi
     print(f"Executing search with solver: {solver} and instance size: {instance_size}")
 
     if solver in ['Random', 'Greedy', 'GRASP', 'BRKGA']:
-        print('Executing Heuristic Python Solver')
+        # print('Executing Heuristic Python Solver')
         return execute_python_solver(solver, instance_size)
     else:
-        print('Executing MILP CPLEX Solver')
+        # print('Executing MILP CPLEX Solver')
         return execute_cplex_solver(instance_size)
 
 
