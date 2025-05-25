@@ -10,7 +10,7 @@ string dataFile=...;
 string modelFile=...;
 string outputFile=...;
 float epgap=...;
-
+float tilim=...;
 
 
  main {
@@ -22,12 +22,15 @@ float epgap=...;
 	model.addDataSource(data);
 	model.generate();
 
-	cplex.epgap = thisOplModel.epgap;
+	cplex.epgap = thisOplModel.epgap; // comment this for trying to find the most optimal solution in the time limit
+	cplex.tilim  = thisOplModel.tilim;
+	cplex.barobjrng = 498318;
 	writeln("\n\nGoing to Run CPLEX Solver");
 	writeln("--Data file: " + thisOplModel.dataFile);
 	writeln("--Model Used: " + thisOplModel.modelFile);
 	writeln("--Output file: " + thisOplModel.outputFile);
 	writeln("--Using hyperparameter cplex.epgap = " + cplex.epgap);
+	writeln("--Using hyperparameter cplex.tilim = " + cplex.tilim);
 
 	if (cplex.solve()) {
 		writeln("[SOLVED]");

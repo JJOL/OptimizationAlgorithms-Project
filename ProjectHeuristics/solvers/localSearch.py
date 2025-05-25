@@ -44,6 +44,7 @@ class LocalSearch(_Solver):
         self.nhStrategy = config.neighborhoodStrategy
         self.policy = config.policy
         self.maxExecTime = config.maxExecTime
+        self.localIterations = 0
         super().__init__(config, instance)
 
     def createNeighborSolution(self, solution, moves):
@@ -195,7 +196,7 @@ class LocalSearch(_Solver):
         incumbentFitness = incumbent.getFitness()
         iterations = 0
 
-        print('Fitness prior to localSearch: ' + str(incumbentFitness))
+        if self.config.verbose: print('Fitness prior to localSearch: ' + str(incumbentFitness))
 
         visited = []
         visited.append(incumbent.toState())
@@ -210,6 +211,9 @@ class LocalSearch(_Solver):
             incumbent = neighbor
             incumbentFitness = neighborFitness
 
-        print('Search iterations: ' + str(iterations))
+        if self.config.verbose: print('Search iterations: ' + str(iterations))
+        if self.config.verbose: print('Fitness after localSearch: ' + str(incumbentFitness))
+
+        self.localIterations = iterations
 
         return incumbent

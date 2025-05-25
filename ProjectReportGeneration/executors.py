@@ -38,6 +38,9 @@ def execute_python_solver(solver: str, instance_size: str) -> tuple[ExecResults,
     dat_file_assign(config_file_path, 'inputDataFile', os.path.join(HEURISTICS_BASE, '..', 'ProjectInstanceGenerator', 'output', data_file))
     if solver == 'Random':
         dat_file_assign(config_file_path, 'localSearch', 'True')
+    elif solver == 'Greedy':
+        dat_file_assign(config_file_path, 'localSearch', 'False')
+
     # Execute
     sys.path.append(HEURISTICS_BASE)
     from datParser import DATParser
@@ -72,7 +75,7 @@ def execute_cplex_solver(instance_size: str) -> tuple[ExecResults, ExecTimes]:
 
 
     start = timer()
-    res = subprocess.run(['oplrun.exe', '..\\ProjectCPLEX\\main.mod', '..\\ProjectCPLEX\\params.dat'], timeout=60)
+    res = subprocess.run(['oplrun.exe', '..\\ProjectCPLEX\\main.mod', '..\\ProjectCPLEX\\params.dat'], timeout=60*20)
     end = timer()
 
     val = 0

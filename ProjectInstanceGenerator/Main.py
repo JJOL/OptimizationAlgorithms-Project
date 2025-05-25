@@ -22,10 +22,12 @@ from datParser import DATParser
 from AMMMGlobals import AMMMException
 from ValidateConfig import ValidateConfig
 from InstanceGenerator import InstanceGenerator
+import os
 
 def run():
     try:
         configFile = "config\config.dat"
+        print(os.getcwd())
         print("AMMM Instance Generator")
         print("-----------------------")
         print("Reading Config file %s..." % configFile)

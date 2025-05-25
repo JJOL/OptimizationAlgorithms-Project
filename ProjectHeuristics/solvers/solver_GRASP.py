@@ -28,52 +28,47 @@ class Solver_GRASP(_Solver):
 
     def _selectCandidate(self, candidateList, alpha):
 
-        # sort candidate assignments by highestLoad in ascending order
-        sortedCandidateList = sorted(candidateList, key=lambda x: x.highestLoad)
         
         # compute boundary highest load as a function of the minimum and maximum highest loads and the alpha parameter
-        minHLoad = sortedCandidateList[0].highestLoad
-        maxHLoad = sortedCandidateList[-1].highestLoad
-        boundaryHLoad = minHLoad + (maxHLoad - minHLoad) * alpha
+        maxGain = candidateList[0][2]
+        minGain = candidateList[-1][2]
+        boundaryMinimumGain = maxGain - (maxGain - minGain) * alpha
         
         # find elements that fall into the RCL
         maxIndex = 0
-        for candidate in sortedCandidateList:
-            if candidate.highestLoad <= boundaryHLoad:
-                maxIndex += 1
+        for i, candidate in enumerate(candidateList):
+            if candidate[2] >= boundaryMinimumGain:
+                maxIndex = i
+            else:
+                break
 
         # create RCL and pick an element randomly
-        rcl = sortedCandidateList[0:maxIndex]          # pick first maxIndex elements starting from element 0
-        if not rcl: return None
+        rcl = candidateList[0:maxIndex+1]          # pick first maxIndex elements starting from element 0
+        if not rcl:
+            return None
         return random.choice(rcl)          # pick a candidate from rcl at random
     
     def _greedyRandomizedConstruction(self, alpha):
-        # get an empty solution for the problem
         solution = self.instance.createSolution()
-        
-        # get tasks and sort them by their total required resources in descending order
-        tasks = self.instance.getTasks()
-        sortedTasks = sorted(tasks, key=lambda t: t.getTotalResources(), reverse=True)
+        candidateList = solution.findFeasibleBidWins()
+        sortedCandidateList = sorted(candidateList, key=lambda x: x[2], reverse=True)
 
-
-        # for each task taken in sorted order
-        for task in sortedTasks:
-            taskId = task.getId()
+        count = 0
+        while len(sortedCandidateList) > 0:
+            # start = time.time()
+            candidate = self._selectCandidate(sortedCandidateList, alpha)
+            sortedCandidateList.remove(candidate)
+            if solution.isCandidateFeasible(candidate):
+                solution.assign(candidate)
             
-            # compute feasible assignments
-            candidateList = solution.findFeasibleAssignments(taskId)
+            # end = time.time()
 
-            # no candidate assignments => no feasible assignment found
-            if not candidateList:
-                solution.makeInfeasible()
-                break
-            
-            # select an assignment
-            candidate = self._selectCandidate(candidateList, alpha)
+            # if count % 100 == 0:
+            #     print('Greedy iteration: %d, candidateList size: %d, time: %f secs' % (count, len(candidateList), end - start))
+            count += 1
 
-            # assign the current task to the CPU that resulted in a minimum highest load
-            solution.assign(taskId, candidate.cpuId)
-            
+        if not solution.isComplete():
+            solution.makeInfeasible()
         return solution
     
     def stopCriteria(self):
@@ -84,8 +79,8 @@ class Solver_GRASP(_Solver):
         self.startTimeMeasure()
         incumbent = self.instance.createSolution()
         incumbent.makeInfeasible()
-        bestHighestLoad = incumbent.getFitness()
-        self.writeLogLine(bestHighestLoad, 0)
+        bestHighestGain = incumbent.getFitness() # infinite BUT WE ARE MAXIMIZING.... SO LET's PUT IT -INF
+        self.writeLogLine(bestHighestGain, 0)
 
         iteration = 0
         while not self.stopCriteria():
@@ -98,16 +93,16 @@ class Solver_GRASP(_Solver):
             if self.config.localSearch:
                 localSearch = LocalSearch(self.config, None)
                 endTime = self.startTime + self.config.maxExecTime
-                solution = localSearch.solve(solution=solution, startTime=self.startTime, endTime=endTime)
+                # solution = localSearch.solve(solution=solution, startTime=self.startTime, endTime=endTime)
 
             if solution.isFeasible():
-                solutionHighestLoad = solution.getFitness()
-                if solutionHighestLoad < bestHighestLoad :
+                solutionHighestGain = solution.getFitness()
+                if solutionHighestGain > bestHighestGain :
                     incumbent = solution
-                    bestHighestLoad = solutionHighestLoad
-                    self.writeLogLine(bestHighestLoad, iteration)
+                    bestHighestGain = solutionHighestGain
+                    self.writeLogLine(bestHighestGain, iteration)
 
-        self.writeLogLine(bestHighestLoad, iteration)
+        self.writeLogLine(bestHighestGain, iteration)
         self.numSolutionsConstructed = iteration
         self.printPerformance()
         return incumbent

@@ -1,4 +1,5 @@
 modelFile = "..\\ProjectCPLEX\\Project.mod";
-dataFile = "..\\ProjectInstanceGenerator\\output\\project.2.dat";
+dataFile = "..\\ProjectInstanceGenerator\\output\\problem_40k.0.dat";
 outputFile= "solution.dat";
 epgap = 0.01;
+tilim = 900;

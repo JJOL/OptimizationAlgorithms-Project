@@ -38,7 +38,7 @@ class _Solution(object):
 
     def makeInfeasible(self):
         self.feasible = False
-        self.fitness = float('inf')
+        self.fitness = float('-inf')
 
     def isFeasible(self):
         return self.feasible

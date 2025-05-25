@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import copy
 from solution import _Solution
-from problem.graph import Graph
+from problem.graph import Graph, DynTopoDAG
 from dataclasses import dataclass
-
+import time
 
 # This class stores the load of the highest loaded CPU
 # when a task is assigned to a CPU.
@@ -45,6 +45,7 @@ class Solution(_Solution):
         self.bidMatrix = bidMatrix
         self.edges = self._extractEdges(bidMatrix, nUsers)
         self.wonBids = []
+        # self.graph = DynTopoDAG(nUsers)
         super().__init__()
 
     def clone(self):
@@ -53,6 +54,7 @@ class Solution(_Solution):
             sol.wonBids.append(b)
         sol.fitness = self.fitness
         return sol
+    
 
     def _extractEdges(self, matrix, n):
         edges = []
@@ -65,18 +67,32 @@ class Solution(_Solution):
     def assign(self, bid):
         self.wonBids.append(bid)
         self.fitness += bid[2]
+        # self.graph.add_edge(bid[0], bid[1])
+
         return True
     
     def _remainingBids(self):
-        return [e for e in self.edges if e not in self.wonBids]
+        remainingBids = []
+        for e in self.edges:
+            remainingBids.append((e[0], e[1], self.bidMatrix[e[0]][e[1]]))
+        return remainingBids
 
     def findFeasibleBidWins(self):
-        feasibleAssignments = []
-        for bid in self._remainingBids():
-            if Graph(self.nUsers, self.wonBids + [bid]).isDAG():
-                feasibleAssignments.append(bid)
+        return self._remainingBids()
+        # feasibleAssignments = []
+        # # graph = Graph(self.nUsers)
+        # # graph.makeBaseEdges(self.wonBids)
+        # for bid in self._remainingBids():
+        #     graph = Graph(self.nUsers, self.wonBids + [bid])
+        #     is_dag = graph.isDAG()
+        #     if is_dag:
+        #         feasibleAssignments.append(bid)
 
-        return feasibleAssignments
+        # return feasibleAssignments
+    
+    def isCandidateFeasible(self, candidate):
+        graph = Graph(self.nUsers, self.wonBids + [candidate])
+        return graph.isDAG()
     
     def isComplete(self):
         return len(self.wonBids) == len(self.edges)/2

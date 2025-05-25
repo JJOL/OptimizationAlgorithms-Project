@@ -27,20 +27,28 @@ class Solver_Greedy(_Solver):
 
     def _selectCandidate(self, candidateList):
         if self.config.solver == 'Greedy':
-            # sort candidate assignments by highestLoad in ascending order
-            sortedCandidateList = sorted(candidateList, key=lambda x: x[2], reverse=True)
-            # choose assignment with minimum highest load
-            return sortedCandidateList[0]
+            return candidateList[0]
         return random.choice(candidateList)
 
     def construction(self):
         # get an empty solution for the problem
         solution = self.instance.createSolution()
         candidateList = solution.findFeasibleBidWins()
-        while len(candidateList) > 0:
-            candidate = self._selectCandidate(candidateList)
-            solution.assign(candidate)
-            candidateList = solution.findFeasibleBidWins()
+        sortedCandidateList = sorted(candidateList, key=lambda x: x[2], reverse=True)
+        count = 0
+        while len(sortedCandidateList) > 0:
+            # start = time.time()
+            candidate = self._selectCandidate(sortedCandidateList)
+            sortedCandidateList.remove(candidate)
+            if solution.isCandidateFeasible(candidate):
+                solution.assign(candidate)
+
+            # solution.assign(candidate)
+            # candidateList = solution.findFeasibleBidWins()
+            # end = time.time()
+            # if count % 100 == 0:
+            #     print('Greedy iteration: %d, candidateList size: %d, time: %f secs' % (count, len(candidateList), end - start))
+            count += 1
 
         if not solution.isComplete():
             solution.makeInfeasible()
@@ -65,8 +73,10 @@ class Solver_Greedy(_Solver):
             solution = localSearch.solve(solution=solution, startTime=self.startTime, endTime=endTime)
 
         self.elapsedEvalTime = time.time() - self.startTime
-        self.writeLogLine(solution.getFitness(), 1)
         self.numSolutionsConstructed = 1
+        if self.config.localSearch:
+            self.numSolutionsConstructed += localSearch.localIterations
+        self.writeLogLine(solution.getFitness(), self.numSolutionsConstructed)
         self.printPerformance()
 
         return solution

@@ -27,8 +27,7 @@ class ValidateConfig(object):
     def validate(data):
         # Validate that mandatory input parameters were found
         paramList = ['instancesDirectory', 'fileNamePrefix', 'fileNameExtension', 'numInstances',
-                      'numCPUs', 'minCapacityPerCPU', 'maxCapacityPerCPU',
-                      'numTasks', 'minResourcesPerTask', 'maxResourcesPerTask']
+                      'numUsers', 'probabilityOfBid', 'maxBid', 'minBid']
         for paramName in paramList:
             if paramName not in data.__dict__:
                 raise AMMMException('Parameter(%s) has not been not specified in Configuration' % str(paramName))
@@ -46,32 +45,24 @@ class ValidateConfig(object):
         if not isinstance(numInstances, int) or (numInstances <= 0):
             raise AMMMException('numInstances(%s) has to be a positive integer value.' % str(numInstances))
 
-        numCPUs = data.numCPUs
-        if not isinstance(numCPUs, int) or (numCPUs <= 0):
-            raise AMMMException('numCPUs(%s) has to be a positive integer value.' % str(numCPUs))
+        numUsers = data.numUsers
+        if not isinstance(numUsers, int) or (numUsers <= 0):
+            raise AMMMException('numUsers(%s) has to be a positive integer value.' % str(numUsers))
+        
+        probabilityOfBid = data.probabilityOfBid
+        if not isinstance(probabilityOfBid, (int, float)) or (probabilityOfBid <= 0):
+            raise AMMMException('probabilityOfBid(%s) has to be a positive float value.' % str(probabilityOfBid))
 
-        minCapacityPerCPU = data.minCapacityPerCPU
-        if not isinstance(minCapacityPerCPU, (int, float)) or (minCapacityPerCPU <= 0):
-            raise AMMMException('minCapacityPerCore(%s) has to be a positive float value.' % str(minCapacityPerCPU))
+        if probabilityOfBid > 1:
+            raise AMMMException('probabilityOfBid(%s) has to be less or equal to 1' % str(probabilityOfBid))
 
-        maxCapacityPerCPU = data.maxCapacityPerCPU
-        if not isinstance(maxCapacityPerCPU, (int, float)) or (maxCapacityPerCPU <= 0):
-            raise AMMMException('maxCapacityPerCore(%s) has to be a positive float value.' % str(maxCapacityPerCPU))
+        maxBid = data.maxBid
+        if not isinstance(maxBid, (int, float)) or (maxBid <= 0):
+            raise AMMMException('maxBid(%s) has to be a positive float value.' % str(maxBid))
 
-        if maxCapacityPerCPU < minCapacityPerCPU:
-            raise AMMMException('maxCapacityPerCore(%s) has to be >= minCapacityPerCore(%s).' % (str(maxCapacityPerCPU), str(minCapacityPerCPU)))
+        minBid = data.minBid
+        if not isinstance(minBid, (int, float)) or (minBid <= 0):
+            raise AMMMException('minBid(%s) has to be a positive float value.' % str(minBid))
 
-        numTasks = data.numTasks
-        if not isinstance(numTasks, int) or (numTasks <= 0):
-            raise AMMMException('numTasks(%s) has to be a positive integer value.' % str(numTasks))
-
-        minResourcesPerTask = data.minResourcesPerTask
-        if not isinstance(minResourcesPerTask, (int, float)) or (minResourcesPerTask <= 0):
-            raise AMMMException('minResourcesPerThread(%s) has to be a positive float value.' % str(minResourcesPerTask))
-
-        maxResourcesPerTask = data.maxResourcesPerTask
-        if not isinstance(maxResourcesPerTask, (int, float)) or (maxResourcesPerTask <= 0):
-            raise AMMMException('maxResourcesPerThread(%s) has to be a positive float value.' % str(maxResourcesPerTask))
-
-        if maxResourcesPerTask < minResourcesPerTask:
-            raise AMMMException('maxResourcesPerThread(%s) has to be >= minResourcesPerThread(%s).' % (str(maxResourcesPerTask), str(minResourcesPerTask)))
+        if maxBid < minBid:
+            raise AMMMException('maxBid(%s) has to be >= minBid(%s).' % (str(maxBid), str(minBid)))
