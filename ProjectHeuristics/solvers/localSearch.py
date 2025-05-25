@@ -21,7 +21,7 @@ import copy
 import time
 from solver import _Solver
 from AMMMGlobals import AMMMException
-
+import random
 
 # A change in a solution in the form: move taskId from curCPUId to newCPUId.
 # This class is used to perform sets of modifications.
@@ -160,46 +160,26 @@ class LocalSearch(_Solver):
 
         return bestNeighbor
 
-    def exploreExchange(self, solution):
-
+    def exploreExchange(self, solution, visited: list[str]):
         curHighestLoad = solution.getFitness()
-        bestNeighbor = solution
+        bestNeighbor = None
 
-        # For the Exchange neighborhood and first improvement policy, try exchanging
-        # two tasks assigned to two different CPUs.
+        for c in solution.getExchangeCandidates():
+            sol = solution.clone()
+            sol.applyExchange(c)
+            if sol.toState() in visited: continue
 
-        cpusWithAssignments = self.getCPUswithAssignemnts(solution)
-        nCPUs = len(cpusWithAssignments)
+            if sol.getFitness() > curHighestLoad:
+                bestNeighbor = sol
+                curHighestLoad = sol.getFitness()
+                if self.policy == 'FirstImprovement': return bestNeighbor
 
-        for h in range(0, nCPUs-1):  # i = 0..(nCPUs-2)
-            CPUPair_h = cpusWithAssignments[h]
-            availCapacityCPU_h = CPUPair_h[2]
-            for th in range(0, len(CPUPair_h[3])):
-                taskPair_h = CPUPair_h[3][th]
-                for l in range(1, nCPUs):  # i = 1..(nCPUs-1)
-                    CPUPair_l = cpusWithAssignments[l]
-                    availCapacityCPU_l = CPUPair_l[2]
-                    for tl in range(0, len(CPUPair_l[3])):
-                        taskPair_l = CPUPair_l[3][tl]
-                        if (taskPair_l[1] - taskPair_h[1]) <= availCapacityCPU_h and\
-                                (taskPair_h[1] - taskPair_l[1]) <= availCapacityCPU_l and \
-                                (taskPair_l[1] != taskPair_h[1]) and \
-                                (availCapacityCPU_l + taskPair_l[1] - taskPair_h[1]) != availCapacityCPU_h :
-                            moves = [Move(taskPair_h[0], CPUPair_h[0], CPUPair_l[0]), Move(taskPair_l[0], CPUPair_l[0], CPUPair_h[0])]
-                            neighborHighestLoad = self.evaluateNeighbor(solution, moves)
-                            if neighborHighestLoad <= curHighestLoad:
-                                neighbor = self.createNeighborSolution(solution, moves)
-                                if neighbor is None:
-                                    raise AMMMException('[exploreExchange] No neighbouring solution could be created')
-                                if self.policy == 'FirstImprovement': return neighbor
-                                else:
-                                    bestNeighbor = neighbor
-                                    curHighestLoad = neighborHighestLoad
         return bestNeighbor
 
-    def exploreNeighborhood(self, solution):
-        if self.nhStrategy == 'TaskExchange': return self.exploreExchange(solution)
-        elif self.nhStrategy == 'Reassignment': return self.exploreReassignment(solution)
+    def exploreNeighborhood(self, solution, visited):
+        if self.nhStrategy == 'BidExchange': return self.exploreExchange(solution, visited)
+        elif self.nhStrategy == 'PrioritizeUser': return self.exploreReassignment(solution, visited) 
+        # Select a node reverse it's highest arrow (cost) and all others needed to avoid cycles. Use DFS to find other arrows to reverse
         else: raise AMMMException('Unsupported NeighborhoodStrategy(%s)' % self.nhStrategy)
 
     def solve(self, **kwargs):
@@ -215,14 +195,21 @@ class LocalSearch(_Solver):
         incumbentFitness = incumbent.getFitness()
         iterations = 0
 
+        print('Fitness prior to localSearch: ' + str(incumbentFitness))
+
+        visited = []
+        visited.append(incumbent.toState())
         # keep iterating while improvements are found
         while time.time() < endTime:
             iterations += 1
-            neighbor = self.exploreNeighborhood(incumbent)
+            neighbor = self.exploreNeighborhood(incumbent, visited)
             if neighbor is None: break
+            visited.append(neighbor.toState())
             neighborFitness = neighbor.getFitness()
-            if incumbentFitness <= neighborFitness: break
+            if incumbentFitness > neighborFitness: break
             incumbent = neighbor
             incumbentFitness = neighborFitness
+
+        print('Search iterations: ' + str(iterations))
 
         return incumbent

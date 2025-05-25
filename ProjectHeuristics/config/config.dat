@@ -1,8 +1,8 @@
 # --- Common specific parameters ------------------------------------------------------------------------------
-inputDataFile        = C:\Users\jjoul\Documents\UPC\AMMM\PythonCode\PythonCode\ProjectHeuristics\..\ProjectInstanceGenerator\output\project.4.dat;
+inputDataFile        = C:\Users\jjoul\Documents\UPC\AMMM\PythonCode\PythonCode\ProjectHeuristics\..\ProjectInstanceGenerator\output\project.2.dat;
 solutionFile         = C:\Users\jjoul\Documents\UPC\AMMM\PythonCode\PythonCode\ProjectHeuristics\solutions\example.sol;   # Output DAT file (solution)
 # Supported values: Greedy / Random / GRASP / BRKGA
-solver               = Greedy;
+solver               = Random;
 maxExecTime          = 10;                      # Maximum execution time in seconds
 verbose              = False;                    # Verbose mode?
 
@@ -14,8 +14,9 @@ verbose              = False;                    # Verbose mode?
 alpha                = 0.7;                 # Alpha parameter for the GRASP solver.
 
 # --- Local Search specific parameters ------------------------------------------------------------------------
-localSearch          = False;                # Enable local search?
-neighborhoodStrategy = TaskExchange;        # Supported Neighborhoods: TaskExchange
+# Enable local search?
+localSearch          = True;
+neighborhoodStrategy = BidExchange;        # Supported Neighborhoods: TaskExchange
 policy               = FirstImprovement;    # Supported Policies: FirstImprovement / BestImprovement
 
 # --- BRKGA specific parameters -------------------------------------------------------------------------------
