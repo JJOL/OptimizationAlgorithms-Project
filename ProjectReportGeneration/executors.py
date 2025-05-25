@@ -67,6 +67,40 @@ def execute_python_solver(solver: str, instance_size: str) -> tuple[ExecResults,
 
     return (ExecResults(sol.z), ExecTimes(end - start))
 
+def execute_grasp_solver(solver: str, instance_size: str, alpha: float) -> tuple[ExecResults, ExecTimes]:
+    # Assign Input File and Solver
+    config_file_path = os.path.join(HEURISTICS_BASE, r'config\config.dat')
+    dat_file_assign(config_file_path, 'solver', solver)
+    dat_file_assign(config_file_path, 'alpha', str(alpha))
+    data_file = instance_size
+    dat_file_assign(config_file_path, 'inputDataFile', os.path.join(HEURISTICS_BASE, '..', 'ProjectInstanceGenerator', 'output', data_file))
+
+    # Execute
+    sys.path.append(HEURISTICS_BASE)
+    from datParser import DATParser
+    from validateInputDataP2 import ValidateInputData
+    from ValidateConfig import ValidateConfig
+    from Main import Main
+
+    config = DATParser.parse(config_file_path)
+    ValidateConfig.validate(config)
+    inputData = DATParser.parse(config.inputDataFile)
+    ValidateInputData.validate(inputData)
+
+    solver = Main(config)
+
+    start = timer()
+
+    solver.run(inputData)
+
+    end = timer()
+    # print('Done.')
+
+    solution_file_path = os.path.join(HEURISTICS_BASE, 'solutions', 'example.sol')
+    sol = DATParser.parse(solution_file_path)
+
+    return (ExecResults(sol.z), ExecTimes(end - start))
+
 def execute_cplex_solver(instance_size: str) -> tuple[ExecResults, ExecTimes]:
     # Assign instance data file
     CPLEX_BASE = '..\\ProjectCPLEX'
@@ -94,6 +128,10 @@ def execute_search(solver: str, instance_size: str) -> tuple[ExecResults, ExecTi
     if solver in ['Random', 'Greedy', 'GRASP', 'BRKGA']:
         # print('Executing Heuristic Python Solver')
         return execute_python_solver(solver, instance_size)
+    elif solver.startswith('GRASP'):
+        alpha = int(solver.split('_')[1]) / 100
+        solver = 'GRASP'
+        return execute_grasp_solver(solver, instance_size, alpha)
     else:
         # print('Executing MILP CPLEX Solver')
         return execute_cplex_solver(instance_size)
